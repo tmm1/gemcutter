@@ -1,7 +1,7 @@
 # General
 
 Then /^I should see error messages$/ do
-  assert_match /error(s)? prohibited/m, response.body
+  assert_match /error(s)? prohibited/m, page.body
 end
 
 # Database
@@ -35,16 +35,15 @@ end
 # Session
 
 Then /^I should be signed in$/ do
-  assert controller.signed_in?
+  Then %{I should see "sign out" within "#signed_in"}
 end
 
 Then /^I should be signed out$/ do
-  assert ! controller.signed_in?
+  Then %{I should see "sign in" within "#signed_out"}
 end
 
 When /^session is cleared$/ do
-  request.reset_session
-  controller.instance_variable_set(:@_current_user, nil)
+  cookies["_test_session"] = nil
 end
 
 Given /^I have signed in with "(.*)\/(.*)"$/ do |email, password|
@@ -99,11 +98,12 @@ When /^I sign in as "(.*)\/(.*)"$/ do |email, password|
   When %{I go to the sign in page}
   And %{I fill in "Email" with "#{email}"}
   And %{I fill in "Password" with "#{password}"}
-  And %{I press "Sign In"}
+  And %{I press "Sign in"}
 end
 
 When /^I sign out$/ do
-  visit '/session', :delete
+  page.driver.delete sign_out_path
+  page.driver.follow_redirect!
 end
 
 When /^I request password reset link to be sent to "(.*)"$/ do |email|

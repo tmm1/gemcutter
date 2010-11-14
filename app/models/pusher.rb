@@ -92,11 +92,11 @@ class Pusher
   end
 
   def specs_index
-    Version.with_indexed(true).map(&:to_index)
+    indexer.compact_specs(Version.with_indexed(true).map(&:to_index))
   end
 
   def latest_index
-    Version.latest.with_indexed.map(&:to_index)
+    indexer.compact_specs(Version.latest.with_indexed.map(&:to_index))
   end
 
   def prerelease_index

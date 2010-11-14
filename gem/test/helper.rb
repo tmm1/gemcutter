@@ -7,10 +7,7 @@ require 'active_support/test_case'
 require 'webmock'
 require 'rr'
 
-begin
-  require 'redgreen'
-rescue LoadError
-end
+$:.unshift "../lib"
 
 WebMock.disable_net_connect!
 

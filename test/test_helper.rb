@@ -6,6 +6,7 @@ set :environment, :test
 WebMock.disable_net_connect!
 
 require 'clearance/shoulda_macros'
+require 'webmock/test_unit'
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = true
@@ -17,7 +18,7 @@ class Test::Unit::TestCase
   include Webrat::Matchers
   include Rack::Test::Methods
   include RR::Adapters::TestUnit unless include?(RR::Adapters::TestUnit)
-  include WebMock
+  include WebMock::API
 
   def setup
     RR.reset

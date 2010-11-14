@@ -8,21 +8,17 @@ When /^I visit the gem page for "([^\"]*)" version "([^\"]*)"$/ do |gem_name, ve
   visit rubygem_version_path(rubygem, version_number)
 end
 
-And /^I save and open the page$/ do
-  save_and_open_page
-  print @response.body
-end
-
 Then /^I should see the following most recent downloads:$/ do |table|
   count = 0
   table.hashes.each do |row|
-    assert_select "#most_downloaded li:nth-child(#{count += 1})",
-                  "#{row['name']} (#{row['downloads']})"
+    with_scope("#most_downloaded li:nth-child(#{count += 1})") do
+      assert page.has_content?("#{row['name']} (#{row['downloads']})")
+    end
   end
 end
 
 Then /^I should see the version "([^\"]*)" featured$/ do |version_number|
-  assert_select("h3", :text => version_number)
+  find("h3:contains('#{version_number}')")
 end
 
 Then /^I should see the following dependencies for "([^"]*)":$/ do |full_name, table|
@@ -56,15 +52,10 @@ end
 Then /I (should|should not) see download graphs for the following rubygems:/ do |should, table|
   table.raw.flatten.each do |name|
     rubygem = Rubygem.find_by_name!(name)
-    meth = should == "should not" ? :assert_have_no_selector : :assert_have_selector
-    send meth, "#graph-#{rubygem.id}"
+    meth    = should == "should not" ? :assert_nil : :assert
+    send meth, current_dom.at_css("#graph-#{rubygem.id}")
 
-    within(".profile-rubygem") do
-      assert_contain rubygem.name
-    end
-
-    within(".profile-downloads") do
-      assert_contain "#{rubygem.downloads} downloads"
-    end
+    find(".profile-rubygem:contains('#{rubygem.name}')")
+    find(".profile-downloads:contains('#{rubygem.downloads} downloads')")
   end
 end

@@ -1,6 +1,8 @@
 class User < ActiveRecord::Base
   include Clearance::User
-  is_gravtastic :default => "retro"
+  include Gravtastic
+
+  gravtastic :default => "retro"
 
   attr_accessible :handle, :password_confirmation, :password, :email
   attr_accessible :handle, :website, :location, :bio

@@ -7,7 +7,7 @@ Feature: Email reset
       Given I am using HTTPS
       And I have signed in with "email@person.com/password"
       And I am on my edit profile page
-      When I fill in "Email address" with "email@newperson.com"
+      When I fill in "Email Address" with "email@newperson.com"
       And I press "Update"
       Then an email entitled "Email address confirmation" should be sent to "email@newperson.com"
       And I should see "You will receive an email within the next few minutes."
@@ -17,7 +17,7 @@ Feature: Email reset
       Given I am using HTTPS
       And I have signed in with "email@person.com/password"
       And I am on my edit profile page
-      When I fill in "Email address" with "this is an invalid email address"
+      When I fill in "Email Address" with "this is an invalid email address"
       And I press "Update"
       Then I should see error messages
 

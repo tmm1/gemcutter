@@ -1,7 +1,3 @@
 Given /^I am using HTTPS$/ do
-  header("HTTPS", "on")
-end
-
-Given /^I am not using HTTPS$/ do
-  # this space left intentionally blank
+  page.driver.header("X_FORWARDED_PROTO", "https")
 end

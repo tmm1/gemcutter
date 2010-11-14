@@ -1,26 +1,27 @@
 class Hostess < Sinatra::Base
+  set :show_exceptions, false
   cattr_writer :local
 
   def self.local
     @@local ||= false
   end
 
-  def serve
+  def serve(content_type)
     if self.class.local
-      send_file(Pusher.server_path(request.path_info))
+      send_file Pusher.server_path(request.path_info), :type => content_type
     else
       yield
     end
   end
 
-  def serve_via_s3
-    serve do
+  def serve_via_s3(content_type)
+    serve(content_type) do
       redirect VaultObject.s3_url_for(request.path_info)
     end
   end
 
-  def serve_via_cf
-    serve do
+  def serve_via_cf(content_type)
+    serve(content_type) do
       redirect VaultObject.cf_url_for(request.path_info)
     end
   end
@@ -30,8 +31,7 @@ class Hostess < Sinatra::Base
      /prerelease_specs.4.8.gz
   ].each do |index|
     get index do
-      content_type('application/x-gzip')
-      serve_via_s3
+      serve_via_s3('application/x-gzip')
     end
   end
 
@@ -43,8 +43,7 @@ class Hostess < Sinatra::Base
      /quick/latest_index.rz
   ].each do |deflated_index|
     get deflated_index do
-      content_type('application/x-deflate')
-      serve_via_s3
+      serve_via_s3('application/x-deflate')
     end
   end
 
@@ -61,14 +60,13 @@ class Hostess < Sinatra::Base
     end
 
     get old_index do
-      serve_via_s3
+      serve_via_s3('application/x-gzip')
     end
   end
 
   get "/quick/Marshal.4.8/*.gemspec.rz" do
     if Version.rubygem_name_for(full_name)
-      content_type('application/x-deflate')
-      serve_via_s3
+      serve_via_s3('application/x-deflate')
     else
       error 404, "This gem does not currently live at Gemcutter."
     end
@@ -81,7 +79,7 @@ class Hostess < Sinatra::Base
       if name = Version.rubygem_name_for(full_name)
         Download.incr(name, full_name)
 
-        serve_via_cf
+        serve_via_cf('application/x-gzip')
       else
         error 404, "This gem does not currently live at Gemcutter."
       end
